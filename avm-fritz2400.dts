@@ -1,0 +1,464 @@
+/dts-v1/;
+
+/ {
+	compatible = "qca,ath79";
+	#address-cells = <0x01>;
+	#size-cells = <0x01>;
+	model = "AVM FRITZ!Repeater 2400";
+	nmi-relocation = <0x01>;
+
+	aliases {
+		spi0 = "/ahb/spi@1f000000";
+		serial0 = "/ahb/apb/uart@18020000";
+		eth0 = "/ahb/ethernet@19000000";
+		eth1 = "/ahb/ethernet@1a000000";
+	};
+
+	cpus {
+		#address-cells = <0x01>;
+		#size-cells = <0x00>;
+
+		cpu@0 {
+			device_type = "cpu";
+			compatible = "mips,mips74Kc";
+			reg = <0x00>;
+		};
+	};
+
+	interrupt-controller {
+		compatible = "qca,ar9132-cpu-intc\0qca,ar7100-cpu-intc";
+		interrupt-controller;
+		#interrupt-cells = <0x01>;
+		linux,phandle = <0x01>;
+		phandle = <0x01>;
+	};
+
+	ahb {
+		compatible = "simple-bus";
+		ranges;
+		#address-cells = <0x01>;
+		#size-cells = <0x01>;
+		interrupt-parent = <0x01>;
+
+		apb {
+			compatible = "simple-bus";
+			ranges;
+			#address-cells = <0x01>;
+			#size-cells = <0x01>;
+			interrupt-parent = <0x02>;
+
+			memory-controller@18000000 {
+				compatible = "qca,ar9132-ddr-controller\0qca,ar7240-ddr-controller";
+				reg = <0x18000000 0x100>;
+				#qca,ddr-wb-channel-cells = <0x01>;
+			};
+
+			uart@18020000 {
+				compatible = "ns16550A\0serial8250";
+				reg = <0x18020000 0x20>;
+				interrupts = <0x03>;
+				interrupt-parent = <0x02>;
+				clocks = <0x03 0x03>;
+				clock-names = "uart";
+				reg-io-width = <0x04>;
+				reg-shift = <0x02>;
+				no-loopback-test;
+				status = "okay";
+			};
+
+			gpio@18040000 {
+				compatible = "qca,ar9340-gpio\0qca,ar7100-gpio";
+				reg = <0x18040000 0x30>;
+				interrupts = <0x02>;
+				ngpios = <0x17>;
+				gpio-controller;
+				#gpio-cells = <0x02>;
+				interrupt-controller;
+				#interrupt-cells = <0x02>;
+				status = "okay";
+				linux,phandle = <0x0f>;
+				phandle = <0x0f>;
+			};
+
+			pll-controller@18050000 {
+				compatible = "qca,ar9132-ppl\0qca,ar9130-pll";
+				reg = <0x18050000 0x20>;
+				clock-names = "ref";
+				clocks = <0x04>;
+				#clock-cells = <0x01>;
+				clock-output-names = "cpu\0ddr\0ahb";
+				linux,phandle = <0x03>;
+				phandle = <0x03>;
+			};
+
+			wdt@18060008 {
+				compatible = "qca,ar7130-wdt";
+				reg = <0x18060008 0x08>;
+				interrupts = <0x04>;
+				clocks = <0x03 0x02>;
+				clock-names = "wdt";
+			};
+
+			interrupt-controller@18060010 {
+				compatible = "qca,ar7240-misc-intc\0qca,ar9132-misc-intc\0qca,ar7100-misc-intc";
+				reg = <0x18060010 0x08>;
+				interrupt-parent = <0x01>;
+				interrupts = <0x06>;
+				interrupt-controller;
+				#interrupt-cells = <0x01>;
+				linux,phandle = <0x02>;
+				phandle = <0x02>;
+			};
+
+			interrupt-controller@18040000 {
+				compatible = "qca,ath79-gpio-intc";
+				interrupt-parent = <0x02>;
+				interrupts = <0x02>;
+				interrupt-controller;
+				#interrupt-cells = <0x01>;
+			};
+
+			interrupt-controller@ip2_int {
+				compatible = "qca,ath79-ip2-intc";
+				interrupt-controller;
+				#interrupt-cells = <0x01>;
+				interrupt-parent = <0x01>;
+				interrupts = <0x02>;
+				linux,phandle = <0x10>;
+				phandle = <0x10>;
+			};
+
+			interrupt-controller@ip3_int {
+				compatible = "qca,ath79-ip3-intc";
+				interrupt-controller;
+				#interrupt-cells = <0x01>;
+				interrupt-parent = <0x01>;
+				interrupts = <0x03>;
+				linux,phandle = <0x05>;
+				phandle = <0x05>;
+			};
+
+			reset-controller@1806001c {
+				compatible = "qca,ar9132-reset\0qca,ar7100-reset";
+				reg = <0x1806001c 0x04>;
+				#reset-cells = <0x01>;
+			};
+
+			i2c@18018000 {
+				#address-cells = <0x01>;
+				#size-cells = <0x00>;
+				compatible = "snps,designware-i2c";
+				reg = <0x18018000 0x80>;
+				interrupt-parent = <0x02>;
+				interrupts = <0x18>;
+				is_old_version = <0x01>;
+				i2c-sck-gpio = <0x11>;
+				i2c-sda-gpio = <0x12>;
+				i2c-tx-fifo-depth = <0x10>;
+				i2c-rx-fifo-depth = <0x40>;
+				clocks = <0x03 0x03>;
+				clock-names = "ref";
+				status = "disabled";
+			};
+
+			pci@0x16000000 {
+				compatible = "qca,ar724x-pci";
+				reg = <0x16000000 0x1000 0x18280000 0x100 0x18250000 0x1000 0x12000000 0x2000000 0x01 0x01>;
+				reg-names = "cfg_base\0ctrl_base\0crp_base\0mem_base\0io_base";
+				interrupt-parent = <0x05>;
+				interrupts = <0x02>;
+				status = "okay";
+			};
+		};
+
+		spi@1f000000 {
+			compatible = "qca,ar9132-spi\0qca,ar7100-spi";
+			reg = <0x1f000000 0x18>;
+			clocks = <0x03 0x02>;
+			clock-names = "ahb";
+			status = "okay";
+			#address-cells = <0x01>;
+			#size-cells = <0x00>;
+			ath79,is-flash = <0x01>;
+			spi-max-frequency = <0x17d7840>;
+		};
+	};
+
+	memory@0 {
+		device_type = "memory";
+		reg = <0x00 0x2000000>;
+	};
+
+	reserved-memory {
+		#address-cells = <0x01>;
+		#size-cells = <0x01>;
+		ranges;
+
+		ramoops@00000000 {
+			compatible = "ramoops";
+			reg = <0xf80000 0x80000>;
+			record-size = <0x20000>;
+		};
+	};
+
+	chosen {
+		bootargs-append = " slub_debug=-";
+	};
+
+	avm-gpio {
+		compatible = "avm,avm_gpio_generic";
+
+		gpio_avm_shift_clk {
+			value = <0x02>;
+			param = <0x0a>;
+		};
+
+		gpio_avm_shift_din {
+			value = <0x03>;
+			param = <0x0a>;
+		};
+
+		gpio_avm_shift_rclk {
+			value = <0x00>;
+			param = <0x0a>;
+		};
+
+		shift_register_size {
+			value = <0x08>;
+			param = <0x0d>;
+			function = <0x00>;
+		};
+
+		gpio_avm_led_fsi0 {
+			value = <0x64>;
+			linux,phandle = <0x09>;
+			phandle = <0x09>;
+		};
+
+		gpio_avm_led_fsi1 {
+			value = <0x65>;
+			linux,phandle = <0x0a>;
+			phandle = <0x0a>;
+		};
+
+		gpio_avm_led_fsi2 {
+			value = <0x66>;
+			linux,phandle = <0x0b>;
+			phandle = <0x0b>;
+		};
+
+		gpio_avm_led_fsi3 {
+			value = <0x67>;
+			linux,phandle = <0x0c>;
+			phandle = <0x0c>;
+		};
+
+		gpio_avm_led_fsi4 {
+			value = <0x68>;
+			linux,phandle = <0x0d>;
+			phandle = <0x0d>;
+		};
+
+		gpio_avm_led_power {
+			value = <0x69>;
+			linux,phandle = <0x07>;
+			phandle = <0x07>;
+		};
+
+		gpio_avm_led_wlan {
+			value = <0x6a>;
+			linux,phandle = <0x06>;
+			phandle = <0x06>;
+		};
+
+		gpio_avm_led_lan {
+			value = <0x6b>;
+			linux,phandle = <0x08>;
+			phandle = <0x08>;
+		};
+
+		gpio_avm_button_wlan {
+			value = <0x01>;
+			param = <0x0c>;
+			linux,phandle = <0x0e>;
+			phandle = <0x0e>;
+		};
+
+		gpio_avm_uart_rx {
+			value = <0x12>;
+			param = <0x0d>;
+			function = <0x08>;
+		};
+
+		gpio_avm_uart_tx {
+			value = <0x13>;
+			param = <0x0b>;
+			function = <0x16>;
+		};
+
+		gpio_avm_extphy1_reset {
+			value = <0x14>;
+			param = <0x0b>;
+			default = <0x01>;
+		};
+
+		gpio_avm_pcie_reset {
+			value = <0x05>;
+			param = <0x0b>;
+			default = <0x01>;
+		};
+
+		gpio_avm_i2c_clk {
+			value = <0x11>;
+			param = <0x0a>;
+		};
+
+		gpio_avm_i2c_data {
+			value = <0x10>;
+			param = <0x0a>;
+		};
+	};
+
+	avm-hui {
+		compatible = "avm,hui";
+
+		repeater-one-no-rssi {
+			compatible = "avm,hui-generic-led-avm";
+			avm-gpios = <0x06 0x07 0x08>;
+
+			colors {
+				normal = <0x00 0xff 0x00>;
+				warn = <0x00 0x00 0xff>;
+				error = <0xff 0x00 0x00>;
+			};
+		};
+
+		rssi1 {
+			compatible = "avm,hui-generic-led-avm";
+			led-type = "uplink-rssi";
+			location = <0x01>;
+			avm-gpios = <0x09>;
+		};
+
+		rssi2 {
+			compatible = "avm,hui-generic-led-avm";
+			led-type = "uplink-rssi";
+			location = <0x02>;
+			avm-gpios = <0x0a>;
+		};
+
+		rssi3 {
+			compatible = "avm,hui-generic-led-avm";
+			led-type = "uplink-rssi";
+			location = <0x03>;
+			avm-gpios = <0x0b>;
+		};
+
+		rssi4 {
+			compatible = "avm,hui-generic-led-avm";
+			led-type = "uplink-rssi";
+			location = <0x04>;
+			avm-gpios = <0x0c>;
+		};
+
+		rssi5 {
+			compatible = "avm,hui-generic-led-avm";
+			led-type = "uplink-rssi";
+			location = <0x05>;
+			avm-gpios = <0x0d>;
+		};
+
+		repeater-connect {
+			compatible = "avm,hui-generic-button-avm";
+			avm-gpios = <0x0e>;
+		};
+	};
+
+	oscillator {
+		compatible = "fixed-clock";
+		#clock-cells = <0x00>;
+		clock-frequency = <0x17d7840>;
+		linux,phandle = <0x04>;
+		phandle = <0x04>;
+	};
+
+	i2c@0 {
+		status = "okay";
+		compatible = "i2c-gpio";
+		gpios = <0x0f 0x10 0x00 0x0f 0x11 0x00>;
+		i2c-gpio,delay-us = <0x05>;
+		#address-cells = <0x01>;
+		#size-cells = <0x00>;
+
+		lm75@48 {
+			compatible = "national,lm75";
+			reg = <0x48>;
+			#thermal-sensor-cells = <0x00>;
+			linux,phandle = <0x11>;
+			phandle = <0x11>;
+		};
+	};
+
+	wifi@b8100000 {
+		compatible = "qca,wifi-ar550x";
+		reg = <0xb8100000 0x20000>;
+		core-id = <0x00>;
+		interrupt-parent = <0x10>;
+		interrupts = <0x01>;
+		interrupt-names = "legacy";
+		status = "ok";
+		#cooling-cells = <0x02>;
+		linux,phandle = <0x13>;
+		phandle = <0x13>;
+	};
+
+	avm_pmu@18116CC4 {
+		reg = <0x18116cc4 0x300000>;
+	};
+
+	thermal-zones {
+
+		package-thermal {
+			polling-delay-passive = <0xfa>;
+			polling-delay = <0x3e8>;
+			thermal-sensors = <0x11>;
+
+			trips {
+
+				t0 {
+					temperature = <0x186a0>;
+					hysteresis = <0x1388>;
+					type = "passive";
+					linux,phandle = <0x12>;
+					phandle = <0x12>;
+				};
+
+				t1 {
+					temperature = <0x19258>;
+					hysteresis = <0xbb8>;
+					type = "hot";
+				};
+
+				t2 {
+					temperature = <0x19a28>;
+					hysteresis = <0x7d0>;
+					type = "hot";
+				};
+			};
+
+			cooling-maps {
+
+				map0 {
+					trip = <0x12>;
+					cooling-device = <0x13 0xffffffff 0xffffffff>;
+				};
+			};
+		};
+	};
+
+	avm-hw-revision {
+		compatible = "avm,avm_hw_revision";
+		revision = "241";
+		subrevision = "0";
+	};
+};
